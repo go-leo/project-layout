@@ -7,7 +7,7 @@ require (
 	github.com/confluentinc/confluent-kafka-go/v2 v2.3.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-leo/cache v0.0.2
-	github.com/go-leo/gox v0.0.0-20240125012204-f8def4313a8a
+	github.com/go-leo/gox v0.0.0-20240125065537-48c4777149a0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.5.0
 	github.com/hashicorp/golang-lru v1.0.2
