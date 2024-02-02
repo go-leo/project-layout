@@ -11,6 +11,7 @@ require (
 	github.com/go-leo/gox v0.0.0-20240125065537-48c4777149a0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.5.0
+	github.com/hashicorp/consul/api v1.27.0
 	github.com/hashicorp/golang-lru v1.0.2
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/nacos-group/nacos-sdk-go/v2 v2.2.5
@@ -20,6 +21,7 @@ require (
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/ugorji/go/codec v1.2.12
+	go.etcd.io/etcd/client/v3 v3.5.12
 	go.mongodb.org/mongo-driver v1.13.1
 	go.opentelemetry.io/otel v1.22.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.45.0
@@ -74,7 +76,7 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.1 // indirect
-	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -82,7 +84,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/subcommands v1.0.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
-	github.com/hashicorp/consul/api v1.27.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
@@ -123,7 +124,6 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	go.etcd.io/etcd/api/v3 v3.5.12 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.12 // indirect
-	go.etcd.io/etcd/client/v3 v3.5.12 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.22.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.1.0 // indirect

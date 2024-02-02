@@ -3,19 +3,19 @@ package databasex
 import (
 	"context"
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"time"
 )
 
 type Configs map[string]*Config
 
 type Config struct {
-	DSN     string        `mapstructure:"dsn" json:"dsn" yaml:"dsn"`
-	ShowSql bool          `mapstructure:"show_sql" json:"show_sql" yaml:"show_sql"`
-	Timeout time.Duration `mapstructure:"timeout" json:"timeout" yaml:"timeout"`
+	DriverName string        `mapstructure:"driver_name" json:"driver_name" yaml:"driver_name"`
+	DSN        string        `mapstructure:"dsn" json:"dsn" yaml:"dsn"`
+	Timeout    time.Duration `mapstructure:"timeout" json:"timeout" yaml:"timeout"`
 }
 
 func NewDBs(configs Configs) (map[string]*sql.DB, error) {
@@ -31,7 +31,7 @@ func NewDBs(configs Configs) (map[string]*sql.DB, error) {
 }
 
 func NewDB(config *Config) (*sql.DB, error) {
-	db, err := sql.Open("mysql", config.DSN)
+	db, err := sql.Open(config.DriverName, config.DSN)
 	if err != nil {
 		return nil, err
 	}
@@ -59,10 +59,8 @@ func NewGormDBs(configs Configs) (map[string]*gorm.DB, error) {
 
 func NewGormDB(config *Config) (*gorm.DB, error) {
 	var opts []gorm.Option
-	if config.ShowSql {
-		opts = append(opts, &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
-	}
-	db, err := gorm.Open(mysql.Open(config.DSN), opts...)
+	open := mysql.Open(config.DSN)
+	db, err := gorm.Open(open, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +68,11 @@ func NewGormDB(config *Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = sqlDB.Ping(); err != nil {
+	if config.Timeout <= 0 {
+		config.Timeout = 3 * time.Second
+	}
+	ctx, _ := context.WithTimeout(context.Background(), config.Timeout)
+	if err = sqlDB.PingContext(ctx); err != nil {
 		return nil, err
 	}
 	return db, err
@@ -93,5 +95,5 @@ func NewSqlxDB(config *Config) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	return sqlx.NewDb(db, "mysql"), nil
+	return sqlx.NewDb(db, config.DriverName), nil
 }
