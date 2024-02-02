@@ -58,3 +58,68 @@ func NewConnection(config *Config) (*amqp091.Connection, error) {
 	}
 	return amqp091.DialTLS(config.URL, tlsCfg)
 }
+
+//
+//type ExchangeConfig struct {
+//	Name       string
+//	Kind       string
+//	Durable    bool
+//	AutoDelete bool
+//	Internal   bool
+//	NoWait     bool
+//	Args       map[string]interface{}
+//}
+//
+//func ExchangeDeclare(channel *amqp091.Channel, config *ExchangeConfig) error {
+//	return channel.ExchangeDeclare(
+//		config.Name,
+//		config.Kind,
+//		config.Durable,
+//		config.AutoDelete,
+//		config.Internal,
+//		config.NoWait,
+//		config.Args,
+//	)
+//}
+//
+//type QueueConfig struct {
+//	Name       string
+//	Durable    bool
+//	AutoDelete bool
+//	Exclusive  bool
+//	NoWait     bool
+//	Args       map[string]interface{}
+//}
+//
+//func QueueDeclare(channel *amqp091.Channel, config *QueueConfig) (amqp091.Queue, error) {
+//	return channel.QueueDeclare(config.Name, config.Durable, config.AutoDelete, config.Exclusive, config.NoWait, config.Args)
+//}
+//
+//type QueueBindConfig struct {
+//	Key      string
+//	Exchange string
+//	NoWait   bool
+//	Args     map[string]interface{}
+//}
+//
+//func QueueBind(channel *amqp091.Channel, queue amqp091.Queue, config *QueueBindConfig) error {
+//	return channel.QueueBind(queue.Name, config.Key, config.Exchange, config.NoWait, config.Args)
+//}
+//
+//type QosConfig struct {
+//	PrefetchCount int
+//	PrefetchSize  int
+//	Global        bool
+//}
+//
+//func EqualizeMessageDistribution(channel *amqp091.Channel, config *QosConfig) error {
+//	return channel.Qos(config.PrefetchCount, config.PrefetchSize, config.Global)
+//}
+//
+//func Ack(channel *amqp091.Channel, tag uint64, multiple bool) error {
+//	return channel.Ack(tag, multiple)
+//}
+//
+//func Nack(channel *amqp091.Channel, tag uint64, multiple bool, requeue bool) error {
+//	return channel.Nack(tag, multiple, requeue)
+//}
