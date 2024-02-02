@@ -4,10 +4,13 @@ import (
 	"github.com/go-leo/ddd-layout/pkg/actuatorx"
 	"github.com/go-leo/ddd-layout/pkg/amqpx"
 	"github.com/go-leo/ddd-layout/pkg/configx"
+	"github.com/go-leo/ddd-layout/pkg/consulx"
 	"github.com/go-leo/ddd-layout/pkg/databasex"
+	"github.com/go-leo/ddd-layout/pkg/elasticsearchx"
 	"github.com/go-leo/ddd-layout/pkg/ginx"
 	"github.com/go-leo/ddd-layout/pkg/grpcx"
 	"github.com/go-leo/ddd-layout/pkg/kafkax"
+	"github.com/go-leo/ddd-layout/pkg/mongox"
 	"github.com/go-leo/ddd-layout/pkg/nacosx"
 	"github.com/go-leo/ddd-layout/pkg/otelx"
 	"github.com/go-leo/ddd-layout/pkg/redisx"
@@ -27,4 +30,7 @@ var Provider = wire.NewSet(
 	otelx.Provider,
 	redisx.Provider,
 	registryx.Provider,
+	mongox.Provider,
+	elasticsearchx.Provider,
+	consulx.Provider,
 )

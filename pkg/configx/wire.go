@@ -17,4 +17,8 @@ var Provider = wire.NewSet(
 	Metric,
 	Redis,
 	Database,
+	Mongo,
+	ElasticSearch,
+	Consul,
+	ETCD,
 )

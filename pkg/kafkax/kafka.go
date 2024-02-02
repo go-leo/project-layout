@@ -32,7 +32,7 @@ func NewConsumers(configs Configs) (map[string]*kafka.Consumer, error) {
 	return consumers, nil
 }
 
-func NewConsumer(conf *Config) (*kafka.Consumer, error) {
+func NewConsumer(config *Config) (*kafka.Consumer, error) {
 	configMap := &kafka.ConfigMap{
 		"api.version.request":       "true",
 		"auto.offset.reset":         "latest",
@@ -41,10 +41,10 @@ func NewConsumer(conf *Config) (*kafka.Consumer, error) {
 		"max.poll.interval.ms":      120000,
 		"fetch.max.bytes":           1024000,
 		"max.partition.fetch.bytes": 256000,
-		"bootstrap.servers":         strings.Join(conf.Brokers, ","),
-		"group.id":                  conf.GroupID,
+		"bootstrap.servers":         strings.Join(config.Brokers, ","),
+		"group.id":                  config.GroupID,
 	}
-	setSecurityConfig(conf, configMap)
+	setSecurityConfig(config, configMap)
 	return kafka.NewConsumer(configMap)
 }
 
@@ -60,7 +60,7 @@ func NewProducers(configs Configs) (map[string]*kafka.Producer, error) {
 	return producers, nil
 }
 
-func NewProducer(conf *Config) (*kafka.Producer, error) {
+func NewProducer(config *Config) (*kafka.Producer, error) {
 	configMap := &kafka.ConfigMap{
 		"api.version.request":           "true",
 		"message.max.bytes":             1000000,
@@ -69,27 +69,27 @@ func NewProducer(conf *Config) (*kafka.Producer, error) {
 		"retries":                       10,
 		"retry.backoff.ms":              1000,
 		"acks":                          "1",
-		"bootstrap.servers":             strings.Join(conf.Brokers, ","),
+		"bootstrap.servers":             strings.Join(config.Brokers, ","),
 	}
-	setSecurityConfig(conf, configMap)
+	setSecurityConfig(config, configMap)
 	return kafka.NewProducer(configMap)
 }
 
-func setSecurityConfig(conf *Config, configMap *kafka.ConfigMap) {
-	switch strings.ToLower(conf.SecurityProtocol) {
+func setSecurityConfig(config *Config, configMap *kafka.ConfigMap) {
+	switch strings.ToLower(config.SecurityProtocol) {
 	case "", "plaintext":
 		configMap.SetKey("security.protocol", "plaintext")
 	case "sasl_ssl":
 		configMap.SetKey("security.protocol", "sasl_ssl")
-		configMap.SetKey("ssl.ca.location", conf.SslCaLocation)
-		configMap.SetKey("sasl.username", conf.SaslUsername)
-		configMap.SetKey("sasl.password", conf.SaslPassword)
-		configMap.SetKey("sasl.mechanism", conf.SaslMechanism)
-		configMap.SetKey("enable.ssl.certificate.verification", strconv.FormatBool(conf.EnableSslCertVerification))
+		configMap.SetKey("ssl.ca.location", config.SslCaLocation)
+		configMap.SetKey("sasl.username", config.SaslUsername)
+		configMap.SetKey("sasl.password", config.SaslPassword)
+		configMap.SetKey("sasl.mechanism", config.SaslMechanism)
+		configMap.SetKey("enable.ssl.certificate.verification", strconv.FormatBool(config.EnableSslCertVerification))
 	case "sasl_plaintext":
 		configMap.SetKey("security.protocol", "sasl_plaintext")
-		configMap.SetKey("sasl.username", conf.SaslUsername)
-		configMap.SetKey("sasl.password", conf.SaslPassword)
-		configMap.SetKey("sasl.mechanism", conf.SaslMechanism)
+		configMap.SetKey("sasl.username", config.SaslUsername)
+		configMap.SetKey("sasl.password", config.SaslPassword)
+		configMap.SetKey("sasl.mechanism", config.SaslMechanism)
 	}
 }

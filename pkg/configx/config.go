@@ -3,10 +3,14 @@ package configx
 import (
 	"github.com/go-leo/ddd-layout/pkg/actuatorx"
 	"github.com/go-leo/ddd-layout/pkg/amqpx"
+	"github.com/go-leo/ddd-layout/pkg/consulx"
 	"github.com/go-leo/ddd-layout/pkg/databasex"
+	"github.com/go-leo/ddd-layout/pkg/elasticsearchx"
+	"github.com/go-leo/ddd-layout/pkg/etcdx"
 	"github.com/go-leo/ddd-layout/pkg/ginx"
 	"github.com/go-leo/ddd-layout/pkg/grpcx"
 	"github.com/go-leo/ddd-layout/pkg/kafkax"
+	"github.com/go-leo/ddd-layout/pkg/mongox"
 	"github.com/go-leo/ddd-layout/pkg/nacosx"
 	"github.com/go-leo/ddd-layout/pkg/otelx"
 	"github.com/go-leo/ddd-layout/pkg/redisx"
@@ -22,18 +26,22 @@ type EnvConfig struct {
 }
 
 type Configuration struct {
-	Env        *EnvConfig                `mapstructure:"env" json:"env" yaml:"env"`
-	Actuator   *actuatorx.Config         `mapstructure:"actuator" json:"actuator" yaml:"actuator"`
-	Nacos      map[string]*nacosx.Config `mapstructure:"nacos" json:"nacos" yaml:"nacos"`
-	Gin        *ginx.Config              `mapstructure:"gin" json:"gin" yaml:"gin"`
-	GrpcServer *grpcx.ServerConfig       `mapstructure:"grpc_server" json:"grpc_server" yaml:"grpc_server"`
-	GrpcClient grpcx.ClientConfigs       `mapstructure:"grpc_client" json:"grpc_client" yaml:"grpc_client"`
-	Trace      *otelx.TraceConfig        `mapstructure:"trace" json:"trace" yaml:"trace"`
-	Metric     *otelx.MetricConfig       `mapstructure:"metric" json:"metric" yaml:"metric"`
-	AMQP       amqpx.Configs             `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
-	Kafka      kafkax.Configs            `mapstructure:"kafka" json:"kafka" yaml:"kafka"`
-	Redis      redisx.Configs            `mapstructure:"redis" json:"redis" yaml:"redis"`
-	Database   databasex.Configs         `mapstructure:"database" json:"database" yaml:"database"`
+	Env           *EnvConfig             `mapstructure:"env" json:"env" yaml:"env"`
+	Actuator      *actuatorx.Config      `mapstructure:"actuator" json:"actuator" yaml:"actuator"`
+	Nacos         nacosx.Configs         `mapstructure:"nacos" json:"nacos" yaml:"nacos"`
+	Gin           *ginx.Config           `mapstructure:"gin" json:"gin" yaml:"gin"`
+	GrpcServer    *grpcx.ServerConfig    `mapstructure:"grpc_server" json:"grpc_server" yaml:"grpc_server"`
+	GrpcClient    grpcx.ClientConfigs    `mapstructure:"grpc_client" json:"grpc_client" yaml:"grpc_client"`
+	Trace         *otelx.TraceConfig     `mapstructure:"trace" json:"trace" yaml:"trace"`
+	Metric        *otelx.MetricConfig    `mapstructure:"metric" json:"metric" yaml:"metric"`
+	AMQP          amqpx.Configs          `mapstructure:"amqp" json:"amqp" yaml:"amqp"`
+	Kafka         kafkax.Configs         `mapstructure:"kafka" json:"kafka" yaml:"kafka"`
+	Redis         redisx.Configs         `mapstructure:"redis" json:"redis" yaml:"redis"`
+	Database      databasex.Configs      `mapstructure:"database" json:"database" yaml:"database"`
+	Mongo         mongox.Configs         `mapstructure:"mongo" json:"mongo" yaml:"mongo"`
+	ElasticSearch elasticsearchx.Configs `mapstructure:"elastic_search" json:"elastic_search" yaml:"elastic_search"`
+	Consul        consulx.Configs        `mapstructure:"consul" json:"consul" yaml:"consul"`
+	ETCD          etcdx.Configs          `mapstructure:"etcd" json:"etcd" yaml:"etcd"`
 }
 
 func Env() *EnvConfig {
@@ -82,4 +90,20 @@ func Redis() redisx.Configs {
 
 func Database() databasex.Configs {
 	return AppConf.Database
+}
+
+func Mongo() mongox.Configs {
+	return AppConf.Mongo
+}
+
+func ElasticSearch() elasticsearchx.Configs {
+	return AppConf.ElasticSearch
+}
+
+func Consul() consulx.Configs {
+	return AppConf.Consul
+}
+
+func ETCD() etcdx.Configs {
+	return AppConf.ETCD
 }
