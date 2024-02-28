@@ -14,12 +14,6 @@ type ConsumerConfig struct {
 	Target string `mapstructure:"target" json:"target" yaml:"target"`
 }
 
-var ClientKeepalive = keepalive.ClientParameters{
-	Time:                10 * time.Second, // send pings every 10 seconds if there is no activity
-	Timeout:             time.Second,      // wait 1 second for ping ack before considering the connection dead
-	PermitWithoutStream: true,             // send pings even without active streams
-}
-
 func UnaryClientInterceptor(mdw ...grpc.UnaryClientInterceptor) grpc.DialOption {
 	return grpc.WithChainUnaryInterceptor(append([]grpc.UnaryClientInterceptor{}, mdw...)...)
 }
@@ -38,6 +32,10 @@ func DialogOptions(opts ...grpc.DialOption) []grpc.DialOption {
 			grpc.MaxCallSendMsgSize(math.MaxInt32),
 		),
 		grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`),
-		grpc.WithKeepaliveParams(ClientKeepalive),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                10 * time.Second, // send pings every 10 seconds if there is no activity
+			Timeout:             time.Second,      // wait 1 second for ping ack before considering the connection dead
+			PermitWithoutStream: true,             // send pings even without active streams
+		}),
 	}, opts...)
 }
