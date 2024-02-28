@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	"github.com/redis/rueidis"
+	"net"
 	"time"
 )
 
@@ -53,6 +55,7 @@ type Config struct {
 	PoolTimeout     time.Duration `mapstructure:"pool_timeout" json:"pool_timeout" yaml:"pool_timeout"`
 	MinIdleConns    int           `mapstructure:"min_idle_conns" json:"min_idle_conns" yaml:"min_idle_conns"`
 	MaxIdleConns    int           `mapstructure:"max_idle_conns" json:"max_idle_conns" yaml:"max_idle_conns"`
+	MaxActiveConns  int           `mapstructure:"max_active_conns" json:"max_active_conns" yaml:"max_active_conns"`
 	ConnMaxIdleTime time.Duration `mapstructure:"conn_max_idle_time" json:"conn_max_idle_time" yaml:"conn_max_idle_time"`
 	ConnMaxLifetime time.Duration `mapstructure:"conn_max_lifetime" json:"conn_max_lifetime" yaml:"conn_max_lifetime"`
 
@@ -60,7 +63,9 @@ type Config struct {
 	EnableTracing bool `mapstructure:"enable_tracing" json:"enable_tracing" yaml:"enable_tracing"`
 	EnableMetrics bool `mapstructure:"enable_metrics" json:"enable_metrics" yaml:"enable_metrics"`
 
-	TLSConfig *tls.Config
+	TLSConfig       *tls.Config
+	DisableIdentity bool   `mapstructure:"disable_identity" json:"disable_identity" yaml:"disable_identity"`
+	IdentitySuffix  string `mapstructure:"identity_suffix" json:"identity_suffix" yaml:"identity_suffix"`
 }
 
 type FailOverClients struct {
@@ -78,51 +83,108 @@ type ClusterClientsOptions struct {
 // New 创建redis客户端集合
 func NewRedisClients(ctx context.Context, configs Configs) (map[string]redis.UniversalClient, error) {
 	clients := make(map[string]redis.UniversalClient)
-	for key, o := range configs {
+	for key, config := range configs {
 		client := redis.NewUniversalClient(&redis.UniversalOptions{
-			Addrs:                 o.Addrs,
-			ClientName:            o.ClientName,
-			DB:                    o.DB,
-			Protocol:              o.Protocol,
-			Username:              o.Username,
-			Password:              o.Password,
-			SentinelUsername:      o.SentinelUsername,
-			SentinelPassword:      o.SentinelPassword,
-			MaxRetries:            o.MaxRetries,
-			MinRetryBackoff:       o.MinRetryBackoff,
-			MaxRetryBackoff:       o.MaxRetryBackoff,
-			DialTimeout:           o.DialTimeout,
-			ReadTimeout:           o.ReadTimeout,
-			WriteTimeout:          o.WriteTimeout,
-			ContextTimeoutEnabled: o.ContextTimeoutEnabled,
-			PoolFIFO:              o.PoolFIFO,
-			PoolSize:              o.PoolSize,
-			PoolTimeout:           o.PoolTimeout,
-			MinIdleConns:          o.MinIdleConns,
-			MaxIdleConns:          o.MaxIdleConns,
-			ConnMaxIdleTime:       o.ConnMaxIdleTime,
-			ConnMaxLifetime:       o.ConnMaxLifetime,
-			TLSConfig:             o.TLSConfig,
-			MaxRedirects:          o.ClusterClientsOptions.MaxRedirects,
-			ReadOnly:              o.ClusterClientsOptions.ReadOnly,
-			RouteByLatency:        o.ClusterClientsOptions.RouteByLatency,
-			RouteRandomly:         o.ClusterClientsOptions.RouteRandomly,
-			MasterName:            o.FailOverClients.MasterName,
+			Addrs:                 config.Addrs,
+			ClientName:            config.ClientName,
+			DB:                    config.DB,
+			Dialer:                nil,
+			OnConnect:             nil,
+			Protocol:              config.Protocol,
+			Username:              config.Username,
+			Password:              config.Password,
+			SentinelUsername:      config.SentinelUsername,
+			SentinelPassword:      config.SentinelPassword,
+			MaxRetries:            config.MaxRetries,
+			MinRetryBackoff:       config.MinRetryBackoff,
+			MaxRetryBackoff:       config.MaxRetryBackoff,
+			DialTimeout:           config.DialTimeout,
+			ReadTimeout:           config.ReadTimeout,
+			WriteTimeout:          config.WriteTimeout,
+			ContextTimeoutEnabled: config.ContextTimeoutEnabled,
+			PoolFIFO:              config.PoolFIFO,
+			PoolSize:              config.PoolSize,
+			PoolTimeout:           config.PoolTimeout,
+			MinIdleConns:          config.MinIdleConns,
+			MaxIdleConns:          config.MaxIdleConns,
+			MaxActiveConns:        config.MaxActiveConns,
+			ConnMaxIdleTime:       config.ConnMaxIdleTime,
+			ConnMaxLifetime:       config.ConnMaxLifetime,
+			TLSConfig:             config.TLSConfig,
+			MaxRedirects:          config.ClusterClientsOptions.MaxRedirects,
+			ReadOnly:              config.ClusterClientsOptions.ReadOnly,
+			RouteByLatency:        config.ClusterClientsOptions.RouteByLatency,
+			RouteRandomly:         config.ClusterClientsOptions.RouteRandomly,
+			MasterName:            config.FailOverClients.MasterName,
+			DisableIndentity:      config.DisableIdentity,
+			IdentitySuffix:        config.IdentitySuffix,
 		})
 		_, err := client.Ping(ctx).Result()
 		if err != nil {
 			return nil, fmt.Errorf("failed ping redis %v, %w", key, err)
 		}
 		// Enable tracing instrumentation.
-		if o.EnableTracing {
+		if config.EnableTracing {
 			if err := redisotel.InstrumentTracing(client); err != nil {
 				return nil, err
 			}
 		}
-		if o.EnableMetrics {
+		if config.EnableMetrics {
 			if err := redisotel.InstrumentMetrics(client); err != nil {
 				return nil, err
 			}
+		}
+		clients[key] = client
+	}
+	return clients, nil
+}
+
+func NewClients(ctx context.Context, configs Configs) (map[string]rueidis.Client, error) {
+	clients := make(map[string]rueidis.Client)
+	for key, config := range configs {
+		client, err := rueidis.NewClient(rueidis.ClientOption{
+			Dialer:          net.Dialer{},
+			TLSConfig:       config.TLSConfig,
+			DialFn:          nil,
+			NewCacheStoreFn: nil,
+			OnInvalidations: nil,
+			SendToReplicas:  nil,
+			Sentinel: rueidis.SentinelOption{
+				Dialer:     net.Dialer{},
+				TLSConfig:  nil,
+				MasterSet:  "",
+				Username:   "",
+				Password:   "",
+				ClientName: "",
+			},
+			Username:              config.Username,
+			Password:              config.Password,
+			ClientName:            config.ClientName,
+			AuthCredentialsFn:     nil,
+			ClientSetInfo:         nil,
+			InitAddress:           config.Addrs,
+			ClientTrackingOptions: nil,
+			SelectDB:              config.DB,
+			CacheSizeEachConn:     0,
+			RingScaleEachConn:     0,
+			ReadBufferEachConn:    0,
+			WriteBufferEachConn:   0,
+			BlockingPoolSize:      0,
+			PipelineMultiplex:     0,
+			ConnWriteTimeout:      0,
+			MaxFlushDelay:         0,
+			ShuffleInit:           false,
+			ClientNoTouch:         false,
+			DisableRetry:          false,
+			DisableCache:          false,
+			AlwaysPipelining:      false,
+			AlwaysRESP2:           false,
+			ForceSingleClient:     false,
+			ReplicaOnly:           false,
+			ClientNoEvict:         false,
+		})
+		if err != nil {
+			return nil, err
 		}
 		clients[key] = client
 	}

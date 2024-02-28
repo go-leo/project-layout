@@ -1,19 +1,19 @@
 package configx
 
 import (
-	"github.com/go-leo/ddd-layout/pkg/actuatorx"
-	"github.com/go-leo/ddd-layout/pkg/amqpx"
-	"github.com/go-leo/ddd-layout/pkg/consulx"
-	"github.com/go-leo/ddd-layout/pkg/databasex"
-	"github.com/go-leo/ddd-layout/pkg/elasticsearchx"
-	"github.com/go-leo/ddd-layout/pkg/etcdx"
-	"github.com/go-leo/ddd-layout/pkg/ginx"
-	"github.com/go-leo/ddd-layout/pkg/grpcx"
-	"github.com/go-leo/ddd-layout/pkg/kafkax"
-	"github.com/go-leo/ddd-layout/pkg/mongox"
-	"github.com/go-leo/ddd-layout/pkg/nacosx"
-	"github.com/go-leo/ddd-layout/pkg/otelx"
-	"github.com/go-leo/ddd-layout/pkg/redisx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/actuatorx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/amqpx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/consulx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/databasex"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/elasticsearchx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/etcdx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/ginx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/grpcx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/kafkax"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/mongox"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/nacosx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/otelx"
+	"github.com/go-leo/project-layout/ddd-layout/pkg/redisx"
 )
 
 var AppConf Configuration
