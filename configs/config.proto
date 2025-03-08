@@ -1,0 +1,7 @@
+syntax = "proto3";
+package xxx.xxx.configs;
+option go_package = "github.com/go-leo/project-layout/configs;configs";
+
+message Config {
+}
+

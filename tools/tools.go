@@ -7,6 +7,7 @@ package tools
 
 import (
 	_ "github.com/google/wire/cmd/wire"
+	_ "github.com/llorllale/go-gitlint"
 	_ "github.com/ugorji/go/codec"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/genproto/googleapis/rpc/status"

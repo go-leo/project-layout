@@ -1,30 +1,49 @@
-# ddd-layout
+# 项目名称
 
-**ddd layout** is a open-source project meant to be used to  as a start point, or an inspiration, for those who want to build Domain Driven Design applications in Golang.
+<!-- 写一段简短的话描述项目 -->
 
-**NOTE:** This is NOT intended to be a definitive solution or a production ready project
+## 功能特性
 
-# Architecture overview
+<!-- 描述该项目的核心功能点 -->
 
-## Layers
-- **presentation**: http controllers, grpc provider, schedule task, message subscriber, console command.
-- **application**: Orchestrates the jobs in the domain needed to be done to accomplish a certain "use case"
-- **Domain**: Where the business rules resides
-- **infrastructure**: Technologies concerns resides here (database access, sending emails, calling external APIs)
+## 软件架构(可选)
 
-## CQRS
+<!-- 可以描述下项目的架构 -->
 
-CQRS splits your application (and even the database in some cases) into two different paths: **Commands** and **Queries**.
+## 快速开始
 
-### Command side
+### 依赖检查
 
-Every operation that can trigger an side effect on the server must pass through the CQRS "command side". I like to put the `Handlers` (commands handlers and events handlers) inside the application layer because their goals are almost the same: orchestrate domain operations (also usually using infrastructure services).
+<!-- 描述该项目的依赖，比如依赖的包、工具或者其他任何依赖项 -->
 
-![command side](docs/images/command_side_with_events.jpg)
+### 构建
 
-### Query side
+<!-- 描述如何构建该项目 -->
 
-Pretty straight forward, the controller receives the request, calls the related query repo and returns a DTO (defined on infrastructure layer itself).
+### 运行
 
-![query side](docs/images/query_side.jpg)
+<!-- 描述如何运行该项目 -->
 
+## 使用指南
+
+<!-- 描述如何使用该项目 -->
+
+## 如何贡献
+
+<!-- 告诉其他开发者如果给该项目贡献源码 -->
+
+## 社区(可选)
+
+<!-- 如果有需要可以介绍一些社区相关的内容 -->
+
+## 关于作者
+
+<!-- 这里写上项目作者 -->
+
+## 谁在用(可选)
+
+<!-- 可以列出使用本项目的其他有影响力的项目，算是给项目打个广告吧 -->
+
+## 许可证
+
+<!-- 这里链接上该项目的开源许可证 -->
