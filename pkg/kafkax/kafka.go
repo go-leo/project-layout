@@ -1,95 +1,85 @@
 package kafkax
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"strconv"
-	"strings"
+	"fmt"
+	"github.com/IBM/sarama"
+	"github.com/go-leo/gox/syncx/lazyloadx"
 )
 
-type Configs map[string]*Config
+func NewConsumerGroups(config *Config) *lazyloadx.Group[sarama.ConsumerGroup] {
+	return &lazyloadx.Group[sarama.ConsumerGroup]{
+		New: func(key string) (sarama.ConsumerGroup, error) {
+			configs := config.GetConfigs()
+			options, ok := configs[key]
+			if !ok {
+				return nil, fmt.Errorf("kafka %s not found", key)
+			}
 
-type Config struct {
-	Topic                     string   `mapstructure:"topic" json:"topic" yaml:"topic"`
-	Brokers                   []string `mapstructure:"brokers" json:"brokers" yaml:"brokers"`
-	GroupID                   string   `mapstructure:"group_id" json:"group_id" yaml:"group_id"`
-	SecurityProtocol          string   `mapstructure:"security_protocol" json:"security_protocol" yaml:"security_protocol"`
-	SaslMechanism             string   `mapstructure:"sasl_mechanism" json:"sasl_mechanism" yaml:"sasl_mechanism"`
-	SaslUsername              string   `mapstructure:"sasl_username" json:"sasl_username" yaml:"sasl_username"`
-	SaslPassword              string   `mapstructure:"sasl_password" json:"sasl_password" yaml:"sasl_password"`
-	SslCaLocation             string   `mapstructure:"ssl_ca_location" json:"ssl_ca_location" yaml:"ssl_ca_location"`
-	EnableSslCertVerification bool     `mapstructure:"enable_ssl_cert_verification" json:"enable_ssl_cert_verification" yaml:"enable_ssl_cert_verification"`
-}
-
-func NewConsumers(configs Configs) (map[string]*kafka.Consumer, error) {
-	consumers := make(map[string]*kafka.Consumer)
-	for key, config := range configs {
-		consumer, err := NewConsumer(config)
-		if err != nil {
-			return nil, err
-		}
-		consumers[key] = consumer
+			saramaConfig := sarama.NewConfig()
+			if version := options.GetVersion(); version != nil {
+				kafkaVersion, err := sarama.ParseKafkaVersion(version.GetValue())
+				if err != nil {
+					return nil, err
+				}
+				saramaConfig.Version = kafkaVersion
+			}
+			if initial := options.GetConsumer().GetOffset().GetInitial(); initial != nil {
+				saramaConfig.Consumer.Offsets.Initial = initial.GetValue()
+			}
+			switch options.GetConsumer().GetGroup().GetRebalance().GetGroupStrategies().GetValue() {
+			case "sticky":
+				saramaConfig.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategySticky()}
+			case "roundrobin":
+				saramaConfig.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategyRoundRobin()}
+			case "range":
+				saramaConfig.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategyRange()}
+			default:
+				saramaConfig.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategyRange()}
+			}
+			return sarama.NewConsumerGroup(options.GetAddrs(), options.GetGroupId().GetValue(), saramaConfig)
+		},
 	}
-	return consumers, nil
 }
 
-func NewConsumer(config *Config) (*kafka.Consumer, error) {
-	configMap := &kafka.ConfigMap{
-		"api.version.request":       "true",
-		"auto.offset.reset":         "latest",
-		"heartbeat.interval.ms":     3000,
-		"session.timeout.ms":        30000,
-		"max.poll.interval.ms":      120000,
-		"fetch.max.bytes":           1024000,
-		"max.partition.fetch.bytes": 256000,
-		"bootstrap.servers":         strings.Join(config.Brokers, ","),
-		"group.id":                  config.GroupID,
-	}
-	setSecurityConfig(config, configMap)
-	return kafka.NewConsumer(configMap)
-}
+func NewSyncProducers(config *Config) *lazyloadx.Group[sarama.SyncProducer] {
+	return &lazyloadx.Group[sarama.SyncProducer]{
+		New: func(key string) (sarama.SyncProducer, error) {
+			configs := config.GetConfigs()
+			options, ok := configs[key]
+			if !ok {
+				return nil, fmt.Errorf("kafka %s not found", key)
+			}
 
-func NewProducers(configs Configs) (map[string]*kafka.Producer, error) {
-	producers := make(map[string]*kafka.Producer)
-	for key, config := range configs {
-		producer, err := NewProducer(config)
-		if err != nil {
-			return nil, err
-		}
-		producers[key] = producer
-	}
-	return producers, nil
-}
-
-func NewProducer(config *Config) (*kafka.Producer, error) {
-	configMap := &kafka.ConfigMap{
-		"api.version.request":           "true",
-		"message.max.bytes":             1000000,
-		"linger.ms":                     500,
-		"sticky.partitioning.linger.ms": 1000,
-		"retries":                       10,
-		"retry.backoff.ms":              1000,
-		"acks":                          "1",
-		"bootstrap.servers":             strings.Join(config.Brokers, ","),
-	}
-	setSecurityConfig(config, configMap)
-	return kafka.NewProducer(configMap)
-}
-
-func setSecurityConfig(config *Config, configMap *kafka.ConfigMap) {
-	switch strings.ToLower(config.SecurityProtocol) {
-	case "", "plaintext":
-		configMap.SetKey("security.protocol", "plaintext")
-	case "sasl_ssl":
-		configMap.SetKey("security.protocol", "sasl_ssl")
-		configMap.SetKey("ssl.ca.location", config.SslCaLocation)
-		configMap.SetKey("sasl.username", config.SaslUsername)
-		configMap.SetKey("sasl.password", config.SaslPassword)
-		configMap.SetKey("sasl.mechanism", config.SaslMechanism)
-		configMap.SetKey("enable.ssl.certificate.verification", strconv.FormatBool(config.EnableSslCertVerification))
-	case "sasl_plaintext":
-		configMap.SetKey("security.protocol", "sasl_plaintext")
-		configMap.SetKey("sasl.username", config.SaslUsername)
-		configMap.SetKey("sasl.password", config.SaslPassword)
-		configMap.SetKey("sasl.mechanism", config.SaslMechanism)
+			saramaConfig := sarama.NewConfig()
+			if version := options.GetVersion(); version != nil {
+				kafkaVersion, err := sarama.ParseKafkaVersion(version.GetValue())
+				if err != nil {
+					return nil, err
+				}
+				saramaConfig.Version = kafkaVersion
+			}
+			if producer := options.GetProducer(); producer != nil {
+				if requiredAcks := producer.GetRequiredAcks(); requiredAcks != nil {
+					saramaConfig.Producer.RequiredAcks = sarama.RequiredAcks(requiredAcks.GetValue())
+				}
+				if retry := producer.GetRetry(); retry != nil {
+					if backoff := retry.GetBackoff(); backoff != nil {
+						saramaConfig.Producer.Retry.Backoff = backoff.AsDuration()
+					}
+					if max := retry.GetMax(); max != nil {
+						saramaConfig.Producer.Retry.Max = int(max.GetValue())
+					}
+				}
+				if returns := producer.GetReturn(); returns != nil {
+					if errors := returns.GetErrors(); errors != nil {
+						saramaConfig.Producer.Return.Errors = errors.GetValue()
+					}
+					if successes := returns.GetSuccesses(); successes != nil {
+						saramaConfig.Producer.Return.Successes = successes.GetValue()
+					}
+				}
+			}
+			return sarama.NewSyncProducer(options.Addrs, saramaConfig)
+		},
 	}
 }

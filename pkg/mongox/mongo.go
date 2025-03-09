@@ -2,30 +2,25 @@ package mongox
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-leo/gox/syncx/lazyloadx"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
+	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Configs map[string]*Config
-
-type Config struct {
-	URI string `mapstructure:"uri" json:"uri" yaml:"uri"`
-}
-
-func NewClients(ctx context.Context, configs Configs) (map[string]*mongo.Client, error) {
-	clients := make(map[string]*mongo.Client)
-	for key, config := range configs {
-		client, err := NewClient(ctx, config)
-		if err != nil {
-			return nil, err
-		}
-		clients[key] = client
+func NewClients(ctx context.Context, config *Config) *lazyloadx.Group[*mongo.Client] {
+	return &lazyloadx.Group[*mongo.Client]{
+		New: func(key string) (*mongo.Client, error) {
+			configs := config.GetConfigs()
+			options, ok := configs[key]
+			if !ok {
+				return nil, fmt.Errorf("nacos %s not found", key)
+			}
+			return NewClient(ctx, options)
+		},
 	}
-	return clients, nil
 }
 
-func NewClient(ctx context.Context, config *Config) (*mongo.Client, error) {
-	ctx, _ = context.WithTimeout(ctx, 10*time.Second)
-	return mongo.Connect(ctx, options.Client().ApplyURI(config.URI))
+func NewClient(ctx context.Context, options *Options) (*mongo.Client, error) {
+	return mongo.Connect(ctx, mongooptions.Client().ApplyURI(options.GetUri().GetValue()))
 }

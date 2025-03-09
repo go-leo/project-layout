@@ -5,20 +5,24 @@ PROJECT_PATH:=$(shell pwd)
 
 .PHONY: tools
 tools:
-	@sh scripts/shell/tools.sh
+	@sh scripts/tools.sh
 
 .PHONY: wire_gen
 wire_gen:
-	@sh scripts/shell/wire.sh
+	@sh scripts/wire.sh
 
 .PHONY: go_gen
 go_gen:
-	@sh scripts/shell/gen.sh
+	@sh scripts/gen.sh
 
-export protoFiles=$(shell listfile -ext=.proto)
-.PHONY: protoc_gen
-protoc_gen:
-	@sh scripts/shell/protoc.sh "$(protoFiles)"
+.PHONY: conf_gen
+conf_gen:
+	@sh scripts/conf_gen.sh
+
+#export protoFiles=$(shell listfile -ext=.proto)
+#.PHONY: protoc_gen
+#protoc_gen:
+#	@sh scripts/shell/protoc.sh "$(protoFiles)"
 
 .PHONY: gen
 gen:

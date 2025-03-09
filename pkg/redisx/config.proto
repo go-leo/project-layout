@@ -1,0 +1,83 @@
+syntax = "proto3";
+package leo.redisx.config;
+option go_package = "github.com/go-leo/project-layout/pkg/redisx;redisx";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+
+message Config {
+  map<string, Options> configs = 1;
+}
+
+message Options {
+  message TLSOptions {
+    string cert_file = 1;
+    string key_file = 2;
+  }
+
+  message ClusterOptions {
+    google.protobuf.Int32Value max_redirects = 1;
+    google.protobuf.BoolValue read_only = 2;
+    google.protobuf.BoolValue route_by_latency = 3;
+    google.protobuf.BoolValue route_randomly = 4;
+  }
+
+  message FailOverOptions {
+    // The sentinel master name.
+    google.protobuf.StringValue master_name = 1;
+  }
+
+  // Either a single address or a seed list of host:port addresses
+  // of cluster/sentinel nodes.
+  repeated string addrs = 1;
+
+  // client_name will execute the `CLIENT SETNAME ClientName` command for each conn.
+  google.protobuf.StringValue client_name = 2;
+
+  // db to be selected after connecting to the server.
+  // Only single-node and failover clients.
+  google.protobuf.Int32Value db = 3;
+
+  // Common options.
+
+  google.protobuf.Int32Value protocol = 4;
+  google.protobuf.StringValue username = 5;
+  google.protobuf.StringValue password = 6;
+  google.protobuf.StringValue sentinel_username = 7;
+  google.protobuf.StringValue sentinel_password = 8;
+
+  google.protobuf.Int32Value max_retries = 9;
+  google.protobuf.Duration min_retry_backoff = 10;
+  google.protobuf.Duration max_retry_backoff = 11;
+
+  google.protobuf.Duration dial_timeout = 12;
+  google.protobuf.Duration read_timeout = 13;
+  google.protobuf.Duration write_timeout = 14;
+  google.protobuf.BoolValue context_timeout_enabled = 15;
+
+  // PoolFIFO uses FIFO mode for each node connection pool GET/PUT (default LIFO).
+  google.protobuf.BoolValue pool_fifo = 16;
+
+  google.protobuf.Int32Value pool_size = 17;
+  google.protobuf.Duration pool_timeout = 18;
+  google.protobuf.Int32Value min_idle_conns = 19;
+  google.protobuf.Int32Value max_idle_conns = 20;
+  google.protobuf.Int32Value max_active_conns = 21;
+  google.protobuf.Duration conn_max_idle_time = 22;
+  google.protobuf.Duration conn_max_lifetime = 23;
+
+  TLSOptions tls_config = 24;
+
+  // Only cluster clients.
+  ClusterOptions cluster_options = 25;
+
+  // Only failover clients.
+  FailOverOptions failover_options = 26;
+
+  google.protobuf.BoolValue disable_identity = 27;
+  google.protobuf.StringValue identity_suffix = 28;
+
+  google.protobuf.BoolValue enable_tracing = 29;
+  google.protobuf.BoolValue enable_metrics = 30;
+}
+
