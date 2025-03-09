@@ -1,5 +1,5 @@
 syntax = "proto3";
-package leo.mongox.config;
+package leo.config.mongox;
 option go_package = "github.com/go-leo/project-layout/pkg/mongox;mongox";
 
 import "google/protobuf/wrappers.proto";

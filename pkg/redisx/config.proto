@@ -1,5 +1,5 @@
 syntax = "proto3";
-package leo.redisx.config;
+package leo.config.redisx;
 option go_package = "github.com/go-leo/project-layout/pkg/redisx;redisx";
 
 import "google/protobuf/duration.proto";

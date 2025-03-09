@@ -1,5 +1,5 @@
 syntax = "proto3";
-package leo.kafkax.config;
+package leo.config.kafkax;
 option go_package = "github.com/go-leo/project-layout/pkg/kafkax;kafkax";
 
 import "google/protobuf/wrappers.proto";

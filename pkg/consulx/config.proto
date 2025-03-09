@@ -1,0 +1,41 @@
+syntax = "proto3";
+package leo.config.consulx;
+option go_package = "github.com/go-leo/project-layout/pkg/consulx;consulx";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/duration.proto";
+
+message Config {
+  map<string, Options> configs = 1;
+}
+// Config is used to pass multiple configuration options to Sarama's constructors.
+message Options {
+  message HttpBasicAuth {
+    google.protobuf.StringValue username = 1;
+    google.protobuf.StringValue password = 2;
+  }
+
+  message TLSConfig {
+    google.protobuf.StringValue address = 1;
+    google.protobuf.StringValue ca_file = 2;
+    google.protobuf.StringValue ca_path = 3;
+    bytes ca_pem = 4;
+    google.protobuf.StringValue cert_file = 5;
+    bytes cert_pem = 6;
+    google.protobuf.StringValue key_file = 7;
+    bytes key_pem = 8;
+    google.protobuf.BoolValue insecure_skip_verify = 9;
+  }
+
+  google.protobuf.StringValue address = 1;
+  google.protobuf.StringValue scheme = 2;
+  google.protobuf.StringValue path_prefix = 3;
+  google.protobuf.StringValue datacenter = 4;
+  HttpBasicAuth http_auth = 5;
+  google.protobuf.Duration wait_time = 6;
+  google.protobuf.StringValue token = 7;
+  google.protobuf.StringValue token_file = 8;
+  google.protobuf.StringValue namespace = 9;
+  google.protobuf.StringValue partition = 10;
+  TLSConfig tls_config = 11;
+}
