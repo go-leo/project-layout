@@ -9,20 +9,19 @@ tools:
 
 .PHONY: wire_gen
 wire_gen:
-	@sh scripts/wire.sh
+	@sh scripts/wire_gen.sh
 
 .PHONY: go_gen
 go_gen:
-	@sh scripts/gen.sh
+	@sh scripts/go_gen.sh
+
+.PHONY: protoc_gen
+protoc_gen:
+	@sh scripts/protoc_gen.sh
 
 .PHONY: conf_gen
 conf_gen:
 	@sh scripts/conf_gen.sh
-
-#export protoFiles=$(shell listfile -ext=.proto)
-#.PHONY: protoc_gen
-#protoc_gen:
-#	@sh scripts/shell/protoc.sh "$(protoFiles)"
 
 .PHONY: gen
 gen:
