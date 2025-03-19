@@ -9,7 +9,6 @@ import (
 	"github.com/go-leo/project-layout/pkg/consulx"
 	"github.com/go-leo/project-layout/pkg/databasex"
 	"github.com/go-leo/project-layout/pkg/elasticsearchx"
-	"github.com/go-leo/project-layout/pkg/ginx"
 	"github.com/go-leo/project-layout/pkg/gorillax"
 	"github.com/go-leo/project-layout/pkg/grpcx"
 	"github.com/go-leo/project-layout/pkg/idx"
@@ -31,7 +30,6 @@ var Provider = wire.NewSet(
 	consulx.Provider,
 	databasex.Provider,
 	elasticsearchx.Provider,
-	ginx.Provider,
 	gorillax.Provider,
 	grpcx.Provider,
 	idx.Provider,
