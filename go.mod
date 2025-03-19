@@ -6,6 +6,7 @@ require (
 	github.com/IBM/sarama v1.45.1
 	github.com/allegro/bigcache v1.2.1
 	github.com/elastic/go-elasticsearch/v8 v8.17.1
+	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.2-0.20230606174503-c7bf81493e58
 	github.com/go-leo/cache v0.0.2
 	github.com/go-leo/gox v0.1.1-0.20250317161140-636ecd48cd38
